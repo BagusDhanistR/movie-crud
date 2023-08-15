@@ -1,6 +1,6 @@
 'use strict'
 
-const {Movie} = require("../models")
+const {Movie, Sequelize} = require("../models")
 
 module.exports.add = async function (req, res, next) {
     try {
@@ -34,6 +34,20 @@ module.exports.getDetail = async function (req, res, next) {
         let {ID} = req.params
 
         const movie = await Movie.findByPk(ID)
+        if(!movie) throw({name: "not found"})
+        return res.status(200).json({message: "heres the detail of the movie:", movie})
+    } catch (error) {
+        next(error)
+    }
+}
+
+module.exports.getSearch = async function (req, res, next) {
+    try {
+        let {search} = req.params
+        
+        const movie = await Movie.findAll({where: {
+            title :{[Sequelize.Op.iLike]: `%${search}%`}
+        }})
         if(!movie) throw({name: "not found"})
         return res.status(200).json({message: "heres the detail of the movie:", movie})
     } catch (error) {
